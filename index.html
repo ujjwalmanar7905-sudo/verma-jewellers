@@ -100,7 +100,7 @@ let oldGold = 0;
 
 async function getPrices() {
     try {
-        let res = await fetch("https://api.metalpriceapi.com/v1/latest?api_key=YOUR_KEY&base=INR&currencies=XAU,XAG");
+        let res = await fetch("https://api.metalpriceapi.com/v1/latest?api_key=eb1acb12afbf7d2daf79fffdb11e8b69&base=INR&currencies=XAU,XAG");
         let data = await res.json();
 
         let gold = data.rates.XAU;
@@ -133,7 +133,8 @@ async function getPrices() {
             "Updated: " + now.toLocaleTimeString();
 
     } catch(e) {
-        alert("Error loading data");
+        alert("Error loa
+              ding data");
     }
 }
 
