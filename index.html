@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verma Jewellers</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+body {
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #000000, #1a1a1a);
+    color:white;
+    text-align:center;
+}
+
+header {
+    padding:20px;
+    font-size:30px;
+    color:#D4AF37;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+
+.container {
+    padding:15px;
+}
+
+.card {
+    background:#121212;
+    margin:15px auto;
+    padding:20px;
+    border-radius:15px;
+    width:90%;
+    max-width:400px;
+    box-shadow:0 0 15px rgba(212,175,55,0.3);
+}
+
+.gold { color:#D4AF37; }
+.silver { color:#C0C0C0; }
+
+select {
+    padding:10px;
+    border-radius:10px;
+    font-size:16px;
+    margin:10px;
+}
+
+.change-up { color:lime; }
+.change-down { color:red; }
+
+button {
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    background:#D4AF37;
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>Verma Jewellers</header>
+
+<div class="container">
+
+<select id="city">
+    <option value="80">Lucknow</option>
+</select>
+
+<div class="card">
+    <h2 class="gold">Gold Price</h2>
+    <p id="gold24">24K: ₹ --</p>
+    <p id="gold22">22K: ₹ --</p>
+    <p id="gold18">18K: ₹ --</p>
+</div>
+
+<div class="card">
+    <h2 class="silver">Silver Price</h2>
+    <p id="silver">₹ --</p>
+</div>
+
+<div class="card">
+    <p id="change">Change: --%</p>
+    <p id="time">Updated: --</p>
+    <button id="installBtn">Install App</button>
+</div>
+
+</div>
+
+<script>
+let oldGold = 0;
+
+async function getPrices() {
+    try {
+        let res = await fetch("https://api.metalpriceapi.com/v1/latest?api_key=YOUR_KEY&base=INR&currencies=XAU,XAG");
+        let data = await res.json();
+
+        let gold = data.rates.XAU;
+        let silver = data.rates.XAG;
+
+        let cityExtra = parseInt(document.getElementById("city").value);
+
+        let gold24 = gold + cityExtra;
+        let gold22 = gold24 * 0.916;
+        let gold18 = gold24 * 0.75;
+
+        document.getElementById("gold24").innerText = "24K: ₹ " + gold24.toFixed(2);
+        document.getElementById("gold22").innerText = "22K: ₹ " + gold22.toFixed(2);
+        document.getElementById("gold18").innerText = "18K: ₹ " + gold18.toFixed(2);
+
+        document.getElementById("silver").innerText = "₹ " + (silver + cityExtra).toFixed(2);
+
+        if(oldGold !== 0){
+            let change = ((gold24 - oldGold) / oldGold) * 100;
+            let el = document.getElementById("change");
+
+            el.innerText = "Change: " + change.toFixed(2) + "%";
+            el.className = change >= 0 ? "change-up" : "change-down";
+        }
+
+        oldGold = gold24;
+
+        let now = new Date();
+        document.getElementById("time").innerText =
+            "Updated: " + now.toLocaleTimeString();
+
+    } catch(e) {
+        alert("Error loading data");
+    }
+}
+
+getPrices();
+setInterval(getPrices, 60000);
+
+// INSTALL APP
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+});
+
+document.getElementById("installBtn").addEventListener("click", async () => {
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+    }
+});
+</script>
+
+</body>
+</html>
